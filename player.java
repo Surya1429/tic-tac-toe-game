@@ -1,88 +1,65 @@
-import java.util.Scanner;
+SIZE = 3
+EMPTY = " "
+board = [[EMPTY for _ in range(SIZE)] for _ in range(SIZE)]
 
-public class TicTacToe {
+def init_board():
+    for i in range(SIZE):
+        for j in range(SIZE):
+            board[i][j] = EMPTY
 
-    private static final int SIZE = 3;
-    private static final char EMPTY = ' ';
-    private static final char[][] board = new char[SIZE][SIZE];
+def print_board():
+    print("-------------")
+    for row in board:
+        print("| " + " | ".join(row) + " |")
+        print("-------------")
 
-    public static void main(String[] args) {
-        Scanner sc = new Scanner(System.in);
-        char currentPlayer = 'X';
-        boolean gameOver = false;
+def is_valid_move(row, col):
+    return 0 <= row < SIZE and 0 <= col < SIZE and board[row][col] == EMPTY
 
-        initBoard();
-        System.out.println("🎮 Welcome to Tic Tac Toe!");
-        printBoard();
+def has_won(player):
+    # check rows and columns
+    for i in range(SIZE):
+        if all(board[i][j] == player for j in range(SIZE)) or \
+           all(board[j][i] == player for j in range(SIZE)):
+            return True
+    # check diagonals
+    if all(board[i][i] == player for i in range(SIZE)) or \
+       all(board[i][SIZE - 1 - i] == player for i in range(SIZE)):
+        return True
+    return False
 
-        while (!gameOver) {
-            System.out.print("Player " + currentPlayer + " enter row and column (0-2): ");
-            int row = sc.nextInt();
-            int col = sc.nextInt();
+def is_board_full():
+    return all(board[i][j] != EMPTY for i in range(SIZE) for j in range(SIZE))
 
-            if (!isValidMove(row, col)) {
-                System.out.println("❌ Invalid move! Try again.");
-                continue;
-            }
+def tic_tac_toe():
+    current_player = "X"
+    game_over = False
+    init_board()
+    print("🎮 Welcome to Tic Tac Toe!")
+    print_board()
 
-            board[row][col] = currentPlayer;
-            printBoard();
+    while not game_over:
+        try:
+            row, col = map(int, input(f"Player {current_player}, enter row and column (0-2): ").split())
+        except ValueError:
+            print("❌ Invalid input! Enter two numbers separated by space.")
+            continue
 
-            if (hasWon(currentPlayer)) {
-                System.out.println("🏆 Player " + currentPlayer + " wins!");
-                gameOver = true;
-            } else if (isBoardFull()) {
-                System.out.println("🤝 It's a draw!");
-                gameOver = true;
-            } else {
-                currentPlayer = (currentPlayer == 'X') ? 'O' : 'X';
-            }
-        }
-        sc.close();
-    }
+        if not is_valid_move(row, col):
+            print("❌ Invalid move! Try again.")
+            continue
 
-    private static void initBoard() {
-        for (int i = 0; i < SIZE; i++) {
-            for (int j = 0; j < SIZE; j++) {
-                board[i][j] = EMPTY;
-            }
-        }
-    }
+        board[row][col] = current_player
+        print_board()
 
-    private static void printBoard() {
-        System.out.println("-------------");
-        for (int i = 0; i < SIZE; i++) {
-            System.out.print("| ");
-            for (int j = 0; j < SIZE; j++) {
-                System.out.print(board[i][j] + " | ");
-            }
-            System.out.println("\n-------------");
-        }
-    }
+        if has_won(current_player):
+            print(f"🏆 Player {current_player} wins!")
+            game_over = True
+        elif is_board_full():
+            print("🤝 It's a draw!")
+            game_over = True
+        else:
+            current_player = "O" if current_player == "X" else "X"
 
-    private static boolean isValidMove(int row, int col) {
-        return row >= 0 && row < SIZE && col >= 0 && col < SIZE && board[row][col] == EMPTY;
-    }
-
-    private static boolean hasWon(char player) {
-        // Check rows & columns
-        for (int i = 0; i < SIZE; i++) {
-            if ((board[i][0] == player && board[i][1] == player && board[i][2] == player) ||
-                (board[0][i] == player && board[1][i] == player && board[2][i] == player)) {
-                return true;
-            }
-        }
-        // Check diagonals
-        return (board[0][0] == player && board[1][1] == player && board[2][2] == player) ||
-               (board[0][2] == player && board[1][1] == player && board[2][0] == player);
-    }
-
-    private static boolean isBoardFull() {
-        for (int i = 0; i < SIZE; i++) {
-            for (int j = 0; j < SIZE; j++) {
-                if (board[i][j] == EMPTY) return false;
-            }
-        }
-        return true;
-    }
-}
+if __name__ == "__main__":
+    tic_tac_toe()
